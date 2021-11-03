@@ -24,7 +24,8 @@
         integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous">
         </script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <!-- <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script> -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 
     <!-- Link to the api keys for your firebase project -->
@@ -39,7 +40,7 @@
     <!-------------------------------------->
     <nav class="navbar navbar-expand-lg navbar-light bg-info">
         <div class="container-fluid">
-            <a class="navbar-brand">Hiking App</a>
+            <a class="navbar-brand">Elmo's Hiking App</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -71,11 +72,128 @@
         </div>
     </div>
 
+    <div class="container">
+        <div class="card-group">
+
+            <div class="card" style="width: 18rem;">
+                <img src="./images/burnaby-lake.jpg" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title" id="BBY01">Hike name</h5>
+                    <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+                    <a href="#" class="btn btn-primary">Read more</a>
+                </div>
+            </div>
+
+            <div class="card" style="width: 18rem;">
+                <img src="./images/buntzenLake.jpg" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title" id="AM01">Hike name</h5>
+                    <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+                    <a href="#" class="btn btn-primary">Read more</a>
+                </div>
+            </div>
+
+            <div class="card" style="width: 18rem;">
+                <img src="./images/mountSeymoure.jpg" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title" id="NV01">Hike name</h5>
+                    <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+                    <a href="#" class="btn btn-primary">Read more</a>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+```
+
 
             <!--------------------------------------------------------------------->
             <!-- JS files: Your own JavaScript functions included here    -->
             <!--------------------------------------------------------------------->
             
+    <script>
+        function read_display_quote() {
+            db.collection("quotes").doc("Tuesday")
+                .onSnapshot(TuesdayDoc => {
+                    console.log(TuesdayDoc.data().quote)
+                    document.getElementById("quote-goes-here").innerHTML = TuesdayDoc.data().quote;
+                })
+        }
+
+        read_display_quote();
+
+        function insertName() {
+        firebase.auth().onAuthStateChanged(user => {
+            // Check if user is signed in:
+            if (user) {                                                                 
+                // Do something for the current logged-in user here: 
+                console.log(user.uid);
+                //go to the correct user document by referencing to the user uid
+                currentUser = db.collection("users").doc(user.uid);
+                //get the document for current user.
+                currentUser.get()
+			          .then(userDoc => {
+                        var user_Name = userDoc.data().name;
+                        console.log(user_Name);
+                        //method #1:  insert with html only
+                        //document.getElementById("name-goes-here").innerText = n;    //using javascript
+                        //method #2:  insert using jquery
+                        $("#name-goes-here").text(user_Name);                         //using jquery
+                        })
+                    } else {
+                        // No user is signed in.
+                    }
+                });
+            }
+        insertName();
+
+        function writeHikes() {
+                    //define a variable for the collection you want to create in Firestore to populate data
+                    var hikesRef = db.collection("Hikes");
+
+                    hikesRef.add({
+                        code:"BBY01",
+                        name: "Burnaby Lake Park Trail",    //replace with your own city?
+                        city: "Burnaby",
+                        province: "BC",
+                        level: "easy",
+                        length: "10 km",
+                        length_time: "2h 33mm"
+                    });
+                    hikesRef.add({
+                        code:"AM01",
+                        name: "Buntzen Lake Trail",    //replace with your own city?
+                        city: "Anmore",
+                        province: "BC",
+                        level: "moderate",
+                        length: "10.5 km",
+                        length_time: "3h 17mm"
+                    });
+                    hikesRef.add({
+                        code:"NV01",
+                        name: "Mount Seymoure Trail",    //replace with your own city?
+                        city: "North Vancouver",
+                        province: "BC",
+                        level: "hard",
+                        length: "8.2 km",
+                        length_time: "3h 20m"
+                    });
+                }
+        //writeHikes();
+
+        function displayHikes() {
+           db.collection("Hikes").get()
+	           .then(allHikes => {
+		           allHikes.forEach(doc => {
+			           var hikeName = doc.data().name; //gets the name field
+			           var hikeID = doc.data().code; //gets the unique ID field
+			           console.log(hikeID);
+			           document.getElementById(hikeID).innerText = hikeName;
+           })
+           })
+                        }
+        displayHikes();
+    </script>
 
 
 </body>
